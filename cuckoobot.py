@@ -5,8 +5,6 @@ now = datetime.utcnow()
 
 hour = now.hour
 
-hour = 0
-
 hour = hour % 12
 if (hour == 0):
     hour = 12
