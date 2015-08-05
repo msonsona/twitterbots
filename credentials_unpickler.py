@@ -2,9 +2,9 @@
 from sys import argv
 import pickle
 
-script, input_file = argv
+script, account = argv
 
-filename = "%s.pickle" % input_file
+filename = "%s.pickle" % account
 
 with open(filename, 'rb') as f:
     credentials = pickle.load(f)
