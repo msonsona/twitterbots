@@ -38,7 +38,7 @@ elif hour == 10:
 elif hour == 11:
     tweet += "🕚"
 
-tweet += "! "
+tweet += "!\n"
 
 for i in range(hour):
     tweet += "🐤cuckoo "
