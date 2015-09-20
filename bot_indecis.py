@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from sys import argv
 from datetime import datetime
+import random
 import credentials_unpickler
 import tweepy
 
@@ -36,6 +37,24 @@ print(texts)
 words = []
 
 for text in texts:
-    words.append(text.split())
+    for word in text.split():
+        words.append(word)
 
 print(words)
+
+tweet = ""
+retries = 0
+while (len(tweet) < 140):
+    selected_word = random.choice(words)
+    
+    if (len(tweet) + len(selected_word) < 140):
+        tweet += " " + selected_word
+    else:
+        retries += 1
+    
+    print("Current tweet ", len(tweet), tweet)
+    
+    if (retries == 10):
+        break
+
+api.update_status(status=tweet)
