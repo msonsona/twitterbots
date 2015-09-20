@@ -16,4 +16,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 0 * * * * ubuntu python3 /home/ubuntu/twitterbots/cuckoobot.py cuckoobot
 
-27 * * * * ubuntu python3 /home/ubuntu/twitterbots/bot_indecis.py bot_indecis.py
+27 * * * * ubuntu python3 /home/ubuntu/twitterbots/bot_indecis.py el_bot_indecis
