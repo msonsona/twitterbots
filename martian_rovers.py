@@ -93,7 +93,7 @@ color1 = ImageColor.getrgb("hsl(" +
                                 str(random.randint(25, 75)) + "%, " + # saturation
                                 str(random.randint(15, 50)) + "%)") # lightness
 color2 = ImageColor.getrgb("hsl(" + 
-                                str(abs(hue-180)) + ", " + # hue
+                                str((hue + 180) % 360) + ", " + # opposite hue
                                 str(random.randint(25, 75)) + "%, " + # saturation
                                 str(random.randint(50, 85)) + "%)") # lightness
 img_2 = ImageOps.colorize(img, color1, color2)
@@ -147,5 +147,6 @@ auth_2.set_access_token(credentials_2['access_token'], credentials_2['access_tok
 api_2 = tweepy.API(auth_2)
 api_2.update_with_media("colorized_" + img_name)
 
+# Remove images
 os.unlink("polaroid_" + img_name)
 os.unlink("colorized_" + img_name)
