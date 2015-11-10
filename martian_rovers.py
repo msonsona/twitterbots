@@ -4,6 +4,7 @@ import random
 import credentials_unpickler
 import tweepy
 
+import os
 import json
 import requests
 
@@ -145,3 +146,6 @@ auth_2.set_access_token(credentials_2['access_token'], credentials_2['access_tok
 
 api_2 = tweepy.API(auth_2)
 api_2.update_with_media("colorized_" + img_name)
+
+os.unlink("polaroid_" + img_name)
+os.unlink("colorized_" + img_name)
