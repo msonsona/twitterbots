@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from sys import argv, exit
+import os
 import subprocess
 import random
 import credentials_unpickler
@@ -33,14 +34,16 @@ with open(input_filename, 'w', encoding='utf-8') as f:
     
     f.write('\n'.join(texts))
 
-command = "analyze -f freeling_es.cfg --outf tagged <{} >{}".format(input_filename, output_filename)
+path = os.path.dirname(os.path.realpath(__file__))
+command = "analyze -f {}/config/candidato_aleatorio/freeling_es.cfg --outf tagged <{} >{}".format(path, input_filename, output_filename)
+print(command)
 
 try:
     subprocess.check_call(command, shell=True)
 except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
     print("Error", e)
     api.update_status(status="@msonsona error with freeling!")
-    sys.exit()
+    exit()
 
 with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
     line_no = 1
