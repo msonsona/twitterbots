@@ -30,8 +30,8 @@ with open(input_filename, 'w', encoding='utf-8') as f:
         tweets = api.user_timeline(id=candidat)
         for tweet in tweets:
             texts.append(tweet.text)
-
-    f.writelines(texts)
+    
+    f.write('\n'.join(texts))
 
 command = "analyze -f freeling_es.cfg --outf tagged <{} >{}".format(input_filename, output_filename)
 
