@@ -2,6 +2,7 @@
 from sys import argv, exit
 import os
 import subprocess
+from time import sleep
 import random
 import credentials_unpickler
 import tweepy
@@ -22,6 +23,11 @@ candidats = [
     'sanchezcastejon', # Pedro Sánchez (PSOE)
     ]
 
+words = []
+users = []
+hashtags = []
+urls = []
+
 input_filename = "tweets_{}.txt".format(account)
 output_filename = "tagged_tweets_{}.txt".format(account)
 
@@ -30,7 +36,29 @@ with open(input_filename, 'w', encoding='utf-8') as f:
     for candidat in candidats:
         tweets = api.user_timeline(id=candidat)
         for tweet in tweets:
-            texts.append(tweet.text)
+            # Let's remove trailing spaces and new lines
+            original_tweet_text = tweet.text.rstrip(' \n')
+            final_tweet_text = []
+            
+            # Pre-process users, hashtags and urls
+            for token in original_tweet_text.split():
+                # Incomplete token
+                if token.endswith('…'):
+                    continue
+                
+                if token.startswith('@'):
+                    users.append(token.rstrip('.:'))
+                elif token.startswith('#'):
+                    hashtags.append(token)
+                elif token.startswith('http'):
+                    urls.append(token)
+                
+                # We'll skip passing urls to the NLP system
+                if not token.startswith('http'):
+                    final_tweet_text.append(token)
+                    
+            # Finally append
+            texts.append(' '.join(final_tweet_text))
     
     f.write('\n'.join(texts))
 
@@ -84,8 +112,8 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
             
             tagged_line.append((word, pos_tag))
             
-            # Replace underscores for spaces on non-specific words 
-            # (introduced by the tokenizer)
+            # Replace underscores for spaces on non-specific words
+            # (introduced by the tokenizer for e.g. Proper Nouns)
             if not pos_tag in ["User", "Hashtag", "Url"]:
                 word = word.replace('_', ' ')
             
@@ -93,9 +121,8 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
                 word_pos[pos_tag] = []
             
             word_pos[pos_tag].append(word)
-            
+        
         line_no += 1
-    
     
     tweet_ok = False
     retries = 0
@@ -125,3 +152,16 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
         if retries == 10:
             print("Sorry, no tweet")
             break
+
+# Auto-follow mentioned users
+users = set(users)
+for user_name in users:
+    try:
+        print("Following {}".format(user_name))
+        api.create_friendship(user_name)
+        sleep(1)
+    except tweepy.TweepError as e:
+        print(e)
+        sleep(10)
+        api.create_friendship(user_name)
+    
