@@ -143,6 +143,10 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
             # We can tweet!
             tweet_ok = True
             print("Tweet: ", tweet)
+            if (tweet.startswith('@')):
+                # Add a point to make the mention public
+                tweet = '.' + tweet
+            
             api.update_status(status=tweet)
         else:
             # Retry for 10 times
