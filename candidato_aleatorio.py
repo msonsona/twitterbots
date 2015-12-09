@@ -126,7 +126,7 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
     
     tweet_ok = False
     retries = 0
-    while not tweet_ok:
+    while not tweet_ok and retries < 10:
         tweet = ""
         
         # Randomly select a PoS structure
@@ -135,27 +135,61 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
         
         for token, pos_tag in sentence_pos:
             # Randomly select a token for the current PoS
-            selected_word = random.choice(word_pos[pos_tag])
-            print("Looking for a", pos_tag, ", like ", token, ":", selected_word)
+            token_ok = False
+            while not token_ok:
+                selected_word = random.choice(word_pos[pos_tag])
+                print("Looking for a", pos_tag, ", like ", token, ":", selected_word)
+                if pos_tag in ["User", "Hashtag", "Url"]:
+                    # Check there are no duplicate users, HT or urls
+                    if not token in tweet:
+                        token_ok = True
+                else:
+                    token_ok = True
+                
             tweet += ' ' + selected_word
         
-        if len(tweet) < 140:
+        # Strip leading and trailing whitespace
+        tweet = tweet.strip()
+        
+        if len(tweet) <= 140:
             # We can tweet!
             tweet_ok = True
             print("Tweet: ", tweet)
-            if (tweet.startswith('@')):
-                # Add a point to make the mention public
-                tweet = '.' + tweet
+            if len(tweet) < 140:
+                if tweet.startswith('@'):
+                    # Add a period to make the mention public
+                    tweet = '.' + tweet
+                
+                # Use trending hashtag
+                woeid_spain = 23424950
+                trends_json = api.trends_place(woeid_spain)
+                trends = trends_json[0]['trends']
+                whitelist = ['Garzon', 'Garzón', 'IU', 'Iglesias', 'Podemos', 'Mariano', 'Rajoy', 'PP', 'popular', 'Rivera', 'Cs', 'Ciudadanos', 'Sanchez', 'Sánchez', 'castejon', 'PSOE', 'socialista', 'debate', '20d', '20D']
+                relevant_trends = []
+                for trend in trends:
+                    if trend['name'].startswith('#'):
+                        for word in whitelist:
+                            if word in trend['name']:
+                                print("Found {} in {}".format(word, trend))
+                                relevant_trends.append(trend['name'])
+                                
+                if relevant_trends:
+                    trend_ok = False
+                    retries = 0
+                    while not trend_ok and retries < 5:
+                        selected_trend = random.choice(relevant_trends)
+                        if not selected_trend in tweet:
+                            if len(tweet + ' ' + selected_trend) <= 140:
+                                tweet += ' ' + selected_trend
+                                trend_ok = True
+                        retries += 1
             
+            print("Final tweet: ", tweet)
             api.update_status(status=tweet)
         else:
             # Retry for 10 times
             print("Sorry, retrying, got", tweet)
             retries += 1
-        
-        if retries == 10:
-            print("Sorry, no tweet")
-            break
 
 # Auto-follow mentioned users
 users = set(users)
