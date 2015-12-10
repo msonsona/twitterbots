@@ -206,11 +206,13 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
 users = set(users)
 for user_name in users:
     try:
-        print("Following {}".format(user_name))
-        api.create_friendship(user_name)
-        sleep(1)
+        if api.exists_friendship(account, user_name):
+            print("Already following", user_name)
+        else:
+            print("Following", user_name)
+            api.create_friendship(user_name)
+        sleep(5)
     except tweepy.TweepError as e:
         print(e)
         sleep(10)
-        api.create_friendship(user_name)
     
