@@ -183,6 +183,17 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
                                 tweet += ' ' + selected_trend
                                 trend_ok = True
                         retries += 1
+                        
+                # Try to add a url too!
+                if len(tweet) < 140:
+                    url_ok = False
+                    retries = 0
+                    while not url_ok and retries < 5:
+                        selected_url = random.choice(urls)
+                        if len(tweet + ' ' + selected_url) <= 140:
+                            tweet += ' ' + selected_url
+                            url_ok = True
+                        retries += 1
             
             print("Final tweet: ", tweet)
             api.update_status(status=tweet)
