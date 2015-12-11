@@ -7,6 +7,17 @@ import random
 import credentials_unpickler
 import tweepy
 
+def autofollow(api, users, start, end):
+    try:
+        relationships = api.lookup_friendships(screen_names=users[start:end])
+        for relationship in relationships:
+            if not relationship.is_following:
+                print("User is not following", relationship.screen_name)
+                api.create_friendship(relationship.screen_name)
+            sleep(2)
+    except tweepy.TweepError as e:
+        print(e)
+
 script, account = argv
 credentials = credentials_unpickler.unpickle(account)
 
@@ -203,16 +214,12 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
             retries += 1
 
 # Auto-follow mentioned users
-users = set(users)
-for user_name in users:
-    try:
-        if api.exists_friendship(account, user_name):
-            print("Already following", user_name)
-        else:
-            print("Following", user_name)
-            api.create_friendship(user_name)
-        sleep(5)
-    except tweepy.TweepError as e:
-        print(e)
-        sleep(10)
-    
+# Now it seems we must lookup batches of 100 users to check following
+users = list(set(users))
+previous_i = 0
+step = 100
+for i in range(step, len(users), step):
+    autofollow(api, users, previous_i, i)
+    previous_i = i
+if previous_i < len(users):
+    autofollow(api, users, previous_i, len(users))
