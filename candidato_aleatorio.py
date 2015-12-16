@@ -125,10 +125,10 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
             
             # Replace underscores for spaces on non-specific words
             # (introduced by the tokenizer for e.g. Proper Nouns)
-            if not pos_tag in ["User", "Hashtag", "Url"]:
+            if pos_tag not in ["User", "Hashtag", "Url"]:
                 word = word.replace('_', ' ')
             
-            if not pos_tag in word_pos:
+            if pos_tag not in word_pos:
                 word_pos[pos_tag] = []
             
             word_pos[pos_tag].append(word)
@@ -152,7 +152,7 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
                 print("Looking for a", pos_tag, ", like ", token, ":", selected_word)
                 if pos_tag in ["User", "Hashtag", "Url"]:
                     # Check there are no duplicate users, HT or urls
-                    if not token in tweet:
+                    if token not in tweet:
                         token_ok = True
                 else:
                     token_ok = True
@@ -189,7 +189,7 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
                     retries = 0
                     while not trend_ok and retries < 5:
                         selected_trend = random.choice(relevant_trends)
-                        if not selected_trend in tweet:
+                        if selected_trend not in tweet:
                             if len(tweet + ' ' + selected_trend) <= 140:
                                 tweet += ' ' + selected_trend
                                 trend_ok = True
