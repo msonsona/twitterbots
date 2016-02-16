@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 import pickle
 
 account = input("1. Enter the account username > ")
@@ -30,6 +31,7 @@ if len(extra_tokens):
 
 print(credentials)
 
-filename = "%s.pickle" % account
+filename = os.path.dirname(os.path.realpath(__file__))
+filename = "{}/credentials/{}.pickle".format(filename, account)
 with open(filename, 'wb') as file:
     pickle.dump(credentials, file, pickle.HIGHEST_PROTOCOL)
