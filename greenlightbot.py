@@ -14,6 +14,17 @@ def insert_in_top10(top10, position, element):
     # 2- deleting last element of top10
     del(top10[-1])
 
+def autofollow(api, users):
+    try:
+        relationships = api.lookup_friendships(screen_names=users)
+        for relationship in relationships:
+            if not relationship.is_following:
+                print("User is not following", relationship.screen_name)
+                api.create_friendship(relationship.screen_name)
+            sleep(2)
+    except tweepy.TweepError as e:
+        print(e)
+
 start = time.time()
 
 script, account = argv
@@ -83,6 +94,7 @@ else:
     pass
     
 if top:
+    users = []
     text = "{} Top{} on {} after {} tweets and {}💚"
     ok_status = text.format(q[weekday], 
                             top, 
@@ -94,6 +106,7 @@ if top:
     original_status_id = original_status.id
 
     for i in range(top-1, -1, -1):
+        users.append(top10[i]['user_name'])
         text = "🔝{} {}💚 to @{} https://twitter.com/{}/status/{}"
         tweet = text.format(e[i], 
                             top10[i]['likes'], 
@@ -105,6 +118,9 @@ if top:
         # keep id for iteration
         original_status_id = reply.id
         time.sleep(10)
+    
+    # follow users in the top ranking
+    autofollow(api, users)
 
 # Summary notification
 status_update = "@msonsona "
