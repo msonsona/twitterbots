@@ -88,9 +88,10 @@ if top:
     original_status_id = original_status.id
 
     for i in range(top-1, -1, -1):
-        text = "🔝{} {}💚 https://twitter.com/{}/status/{}"
+        text = "🔝{} {}💚 to @{} https://twitter.com/{}/status/{}"
         tweet = text.format(e[i], 
                             top10[i]['likes'], 
+                            top10[i]['user_name'], 
                             top10[i]['user_name'], 
                             top10[i]['id'])
         reply = api.update_status(status=tweet,
