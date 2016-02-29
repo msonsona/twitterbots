@@ -21,3 +21,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 27 * * * * ubuntu python3 /home/ubuntu/twitterbots/bot_indecis.py el_bot_indecis
 
 15 0,6,12,18 * * * ubuntu python3 /home/ubuntu/twitterbots/martian_rovers.py nostalgic_rover tripping_rover
+
+1 2 * * * ubuntu python3 /home/ubuntu/twitterbots/greenlightbot.py greenlightbot
