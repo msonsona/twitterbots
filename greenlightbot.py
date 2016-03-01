@@ -21,7 +21,7 @@ def autofollow(api, users):
             if not relationship.is_following:
                 print("User is not following", relationship.screen_name)
                 api.create_friendship(relationship.screen_name)
-            sleep(2)
+            time.sleep(2)
     except tweepy.TweepError as e:
         print(e)
 
