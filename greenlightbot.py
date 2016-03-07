@@ -2,6 +2,7 @@
 from sys import argv
 from datetime import date, timedelta
 import time
+# import gc
 
 import tweepy
 
@@ -41,15 +42,17 @@ today = date.today()
 weekday = today.weekday()
 week = timedelta(days=7)
 
+keyword = q[weekday]
+
 print("Today is ", today, " | weekday ", weekday)
-print("So I'll query for", q[weekday])
+print("So I'll query for", keyword)
 
 top10 = [{'id':0, 'likes':-1, 'user_name':''} for i in range(10)]
 
 # Sort tweets for the given keyword by likes, keep only the top 10
 num_tweets = 0
 num_likes = 0
-for page in tweepy.Cursor(api.search, q=q[weekday], since=today-week, count=100).pages():
+for page in tweepy.Cursor(api.search, q=keyword, since=today-week, count=100).pages():
     for tweet in page:
         num_tweets += 1
         num_likes += tweet.favorite_count
@@ -73,7 +76,12 @@ for page in tweepy.Cursor(api.search, q=q[weekday], since=today-week, count=100)
                                      'likes':tweet.favorite_count,
                                      'user_name':tweet.user.screen_name})
                     break
+    #     del tweet
+    # del page
+    # gc.collect()
+    
     print(num_tweets)
+    time.sleep(10)
 
 for t in top10:
     print(t)
@@ -96,7 +104,7 @@ else:
 if top:
     users = []
     text = "{} Top{} on {} after {} tweets and {}💚"
-    ok_status = text.format(q[weekday], 
+    ok_status = text.format(keyword, 
                             top, 
                             date.today(), 
                             num_tweets, 
@@ -130,10 +138,10 @@ else:
     status_update += "💩 not enough likes "
 
 status_update += "for {} on {}, {} tweets ranked in {} secs".format(
-    q[weekday], 
+    keyword, 
     date.today(), 
     num_tweets, 
     round(time.time() - start, 2)
     )
-api.update_status(status=status_update)
-print(status_update.text)
+api.send_direct_message("msonsona", text=status_update)
+print(status_update)
