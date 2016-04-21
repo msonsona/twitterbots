@@ -2,8 +2,9 @@
 from sys import argv
 from datetime import date, timedelta
 import time
-# import gc
 
+import requests
+from requests_oauthlib import OAuth1
 import tweepy
 
 import credentials_unpickler
@@ -31,10 +32,10 @@ start = time.time()
 script, account = argv
 credentials = credentials_unpickler.unpickle(account)
 
-auth = tweepy.OAuthHandler(credentials['consumer_key'], credentials['consumer_secret'])
-auth.set_access_token(credentials['access_token'], credentials['access_token_secret'])
+tw_auth = tweepy.OAuthHandler(credentials['consumer_key'], credentials['consumer_secret'])
+tw_auth.set_access_token(credentials['access_token'], credentials['access_token_secret'])
 
-api = tweepy.API(auth)
+api = tweepy.API(tw_auth)
 
 q = ['#screenshotsaturday', '#mobilegames', '#gamedev', '#madewithunity', '#ue4', '#indiedev', '#pixelart']
 
@@ -52,36 +53,54 @@ top10 = [{'id':0, 'likes':-1, 'user_name':''} for i in range(10)]
 # Sort tweets for the given keyword by likes, keep only the top 10
 num_tweets = 0
 num_likes = 0
-for page in tweepy.Cursor(api.search, q=keyword, since=today-week, count=100).pages():
-    for tweet in page:
+
+twitter_search_endpoint = 'https://api.twitter.com/1.1/search/tweets.json'
+req_auth = OAuth1(credentials['consumer_key'], credentials['consumer_secret'],
+              credentials['access_token'], credentials['access_token_secret'])
+payload = {
+    'q': "{} since:{}".format(keyword, today-week),
+    'count': 100
+    }
+search_req = requests.get(twitter_search_endpoint, 
+                          params=payload, 
+                          auth=req_auth)
+search_json = search_req.json()
+tweets = search_json['statuses']
+
+while tweets:
+    
+    for tweet in tweets:
         num_tweets += 1
-        num_likes += tweet.favorite_count
+        num_likes += tweet['favorite_count']
         
-        # print(tweet.id, tweet.favorite_count)
-        if tweet.favorite_count >= top10[0]['likes']:
+        if tweet['favorite_count'] >= top10[0]['likes']:
             insert_in_top10(top10, 
                             0, 
-                            {'id':tweet.id,
-                             'likes':tweet.favorite_count,
-                             'user_name':tweet.user.screen_name})
-        elif tweet.favorite_count <= top10[-1]['likes']:
+                            {'id':tweet['id'],
+                             'likes':tweet['favorite_count'],
+                             'user_name':tweet['user']['screen_name']})
+        elif tweet['favorite_count'] <= top10[-1]['likes']:
             pass
         else:
-            # print("sorting")
             for i in range(9, -1, -1):
-                if top10[i]['likes'] > tweet.favorite_count:
+                if top10[i]['likes'] > tweet['favorite_count']:
                     insert_in_top10(top10, 
                                     i+1, 
-                                    {'id':tweet.id,
-                                     'likes':tweet.favorite_count,
-                                     'user_name':tweet.user.screen_name})
+                                    {'id':tweet['id'],
+                                     'likes':tweet['favorite_count'],
+                                     'user_name':tweet['user']['screen_name']})
                     break
-    #     del tweet
-    # del page
-    # gc.collect()
     
     print(num_tweets)
     time.sleep(10)
+    
+    # should we keep iterating?
+    if 'next_results' in search_json['search_metadata']:
+        querystring = search_json['search_metadata']['next_results']
+        search_req = requests.get(twitter_search_endpoint + querystring, 
+                                  auth=req_auth)
+        search_json = search_req.json()
+        tweets = search_json['statuses']
 
 for t in top10:
     print(t)
