@@ -101,8 +101,6 @@ while tweets:
                                   auth=req_auth)
         search_json = search_req.json()
         tweets = search_json['statuses']
-    else:
-        tweets = None
 
 for t in top10:
     print(t)
