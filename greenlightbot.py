@@ -2,7 +2,6 @@
 from sys import argv
 from datetime import date, timedelta
 import time
-# import gc
 
 import tweepy
 
@@ -76,11 +75,10 @@ for page in tweepy.Cursor(api.search, q=keyword, since=today-week, count=100).pa
                                      'likes':tweet.favorite_count,
                                      'user_name':tweet.user.screen_name})
                     break
-    #     del tweet
-    # del page
-    # gc.collect()
     
     print(num_tweets)
+    if num_tweets > 20000:
+        break
     time.sleep(10)
 
 for t in top10:
