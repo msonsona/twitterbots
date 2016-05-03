@@ -10,7 +10,7 @@ auth.set_access_token(credentials['access_token'], credentials['access_token_sec
 
 api = tweepy.API(auth)
 
-user = api.get_user('@msonsona'
+user = api.get_user('@msonsona')
 
 list_members = api.list_members(owner_screen_name='@msonsona', slug='my-twitter-bots')
 
