@@ -175,7 +175,7 @@ with open(output_filename, 'r', encoding='utf-8') as tagged_tweets_file:
                 woeid_spain = 23424950
                 trends_json = api.trends_place(woeid_spain)
                 trends = trends_json[0]['trends']
-                whitelist = ['Garzon', 'Garzón', 'IU', 'Iglesias', 'Podemos', 'Mariano', 'Rajoy', 'PP', 'popular', 'Rivera', 'Cs', 'Ciudadanos', 'Sanchez', 'Sánchez', 'castejon', 'PSOE', 'socialista', 'debate', '20d', '20D', 'voto', 'vota', 'elecciones']
+                whitelist = ['Garzon', 'Garzón', 'IU', 'Iglesias', 'Podemos', 'Mariano', 'Rajoy', 'PP', 'popular', 'Rivera', 'Cs', 'Ciudadanos', 'Sanchez', 'Sánchez', 'castejon', 'PSOE', 'socialista', 'debate', '20d', '20D', 'voto', 'vota', 'elecciones', '26j', '26J', 'unidos']
                 relevant_trends = []
                 for trend in trends:
                     if trend['name'].startswith('#'):
